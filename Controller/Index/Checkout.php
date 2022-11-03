@@ -33,8 +33,9 @@ class Checkout extends \Magento\Framework\App\Action\Action
 
 	public function execute()
 	{
-		$resultRedirect   = $this->resultRedirectFactory->create();
+		$resultRedirect = $this->resultRedirectFactory->create();
 		$quoteMaskId = $this->getRequest()->getParam('token');
+		$result = null;
 
 		try {
 			$result = $this->openCheckout($quoteMaskId);
@@ -66,11 +67,11 @@ class Checkout extends \Magento\Framework\App\Action\Action
 		try {
 			$quoteId = $this->maskedQuoteIdToQuoteId->execute($quoteMaskId);
 			if (!$quoteId) {
-				$result->error = "Cart id not found";
+				$result->error = 'Cart id not found or this link is already used';
 			}
 		} catch (LocalizedException $e) {
 			$this->messageManager->addErrorMessage($e->getMessage());
-			$result->error = "Cart id not found";
+			$result->error = 'Cart id not found or this link is already used';
 		}
 
 		if (!$quoteId) {
@@ -111,11 +112,16 @@ class Checkout extends \Magento\Framework\App\Action\Action
 						$this->cart->addProduct($item->getProduct(), $info);
 					}
 				} catch (NoSuchEntityException $e) {
-					throw new LocalizedException(__('Can not add product to cart'));
+					$this->messageManager->addErrorMessage($e->getMessage());
+					$result->error = 'Can not add product to cart';
+					return $result;
 				}
 			}
 		}
 		$this->cart->save();
+
+		// This is temporary guest cart created by Amazd backend. Remove after merged with current cart.
+		$quote->delete();
 
 		$result->success = true;
 		return $result;
