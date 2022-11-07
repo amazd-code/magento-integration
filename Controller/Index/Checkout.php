@@ -27,7 +27,7 @@ class Checkout extends \Magento\Framework\App\Action\Action
 		$this->quoteRepository = $quoteRepository;
 		$this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
 		$this->productRepository = $productRepository;
-		$this->cart              = $cart;
+		$this->cart = $cart;
 		return parent::__construct($context);
 	}
 
@@ -92,30 +92,26 @@ class Checkout extends \Magento\Framework\App\Action\Action
 		$items = $quote->getItemsCollection();
 
 		foreach ($items as $item) {
-			if (!$item->getParentItemId()) {
-				$storeId = $quote->getStoreId();
-				try {
-					/**
-					 * We need to reload product in this place, because products
-					 * with the same id may have different sets of order attributes.
-					 */
-					$product     = $this->productRepository->getById($item->getProductId(), false, $storeId, true);
-					$options     = $item->getProduct()->getTypeInstance(true)
-						->getOrderOptions($item->getProduct());
-					$info        = $options['info_buyRequest'];
-					$productType = $item->getProductType();
-					$info['qty'] = $item->getQty();
+			if ($item->getParentItemId()) continue;
 
-					if ($productType === 'configurable' || $productType === 'bundle') {
-						$this->cart->addProduct($product, $info);
-					} else {
-						$this->cart->addProduct($item->getProduct(), $info);
-					}
-				} catch (NoSuchEntityException $e) {
-					$this->messageManager->addErrorMessage($e->getMessage());
-					$result->error = 'Can not add product to cart';
-					return $result;
+			$productId = $item->getProductId();
+			if ($this->cart->getQuote()->hasProductId($productId)) continue;
+
+			try {
+				$product = $this->productRepository->getById($productId, false, $quote->getStoreId(), true);
+				$info = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct())['info_buyRequest'];
+				$productType = $item->getProductType();
+				$info['qty'] = $item->getQty();
+
+				if ($productType === 'configurable' || $productType === 'bundle') {
+					$this->cart->addProduct($product, $info);
+				} else {
+					$this->cart->addProduct($item->getProduct(), $info);
 				}
+			} catch (NoSuchEntityException $e) {
+				$this->messageManager->addErrorMessage($e->getMessage());
+				$result->error = 'Can not add product to cart';
+				return $result;
 			}
 		}
 		$this->cart->save();

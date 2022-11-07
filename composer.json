@@ -1,1 +1,17 @@
-{}
+{
+  "name": "magento/module-customer",
+  "description": "N/A",
+  "type": "magento2-module",
+  "license": [
+    "MIT"
+  ],
+  "version": "1.0.0",
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "Magento\\Customer\\": ""
+    }
+  }
+}
