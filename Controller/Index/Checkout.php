@@ -5,8 +5,10 @@
  *
  * Integration of Amazd wishbag-to-checkout flow.
  *
- * @copyright  Copyright (c) Amazd (https://www.amazd.co/)
- * @license    https://github.com/amazd-code/magento-integration/blob/master/LICENSE.md
+ * @category  Amazd
+ * @package   Amazd_Integration
+ * @copyright 2022 Amazd (https://www.amazd.co/)
+ * @license   https://github.com/amazd-code/magento-integration/blob/master/LICENSE MIT
  */
 
 namespace Amazd\Integration\Controller\Index;
@@ -41,12 +43,13 @@ class Checkout extends \Magento\Framework\App\Action\Action
     /**
      * Checkout constructor
      *
-     * @param Context $context
-     * @param RawFactory $rawResultFactory
-     * @param CartRepositoryInterface $quoteRepository
-     * @param MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
-     * @param ProductRepository $productRepository
-     * @param Cart $cart
+     * @param  Context                         $context
+     * @param  RawFactory                      $rawResultFactory
+     * @param  CartRepositoryInterface         $quoteRepository
+     * @param  MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId
+     * @param  ProductRepository               $productRepository
+     * @param  Cart                            $cart
+     * @return CheckoutResult                  $result
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -74,7 +77,7 @@ class Checkout extends \Magento\Framework\App\Action\Action
         $result = null;
 
         try {
-            $result = $this->mergeQuote($quoteMaskId);
+            $result = $this->_mergeQuote($quoteMaskId);
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         }
@@ -96,7 +99,7 @@ class Checkout extends \Magento\Framework\App\Action\Action
      *
      * @param String $quoteMaskId
      */
-    private function mergeQuote($quoteMaskId)
+    private function _mergeQuote($quoteMaskId)
     {
         $result = new CheckoutResult();
 

@@ -3,8 +3,10 @@
 /**
  * Amazd Integration
  *
- * @copyright  Copyright (c) Amazd (https://www.amazd.co/)
- * @license    https://github.com/amazd-code/magento-integration/blob/master/LICENSE.md
+ * @category  Amazd
+ * @package   Amazd_Integration
+ * @copyright 2022 Amazd (https://www.amazd.co/)
+ * @license   https://github.com/amazd-code/magento-integration/blob/master/LICENSE MIT
  */
 
 namespace Amazd\Integration\Model;
