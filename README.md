@@ -1,9 +1,9 @@
-# Installation
+## Installation
 
-Copy ./ to {magento_root}/app/code/Amazd/Integration
+- Install via composer:
 
 ```sh
-php bin/magento module:enable Amazd_Integration
+composer require amazd/integration
 php bin/magento setup:upgrade
 php bin/magento setup:static-content:deploy
 ```
