@@ -13,6 +13,7 @@ php bin/magento setup:static-content:deploy
 git clone https://github.com/amazd-code/magento-integration
 mv magento-integration {magento_root}/app/code/Amazd/Integration
 cd {magento_root}
+php bin/magento module:enable Amazd_Integration
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
 php bin/magento setup:static-content:deploy
