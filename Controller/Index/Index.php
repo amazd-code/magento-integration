@@ -1,22 +1,43 @@
 <?php
 
+/**
+ * Amazd Integration
+ *
+ * @copyright  Copyright (c) Amazd (https://www.amazd.co/)
+ * @license    https://github.com/amazd-code/magento-integration/blob/master/LICENSE.md
+ */
+
 namespace Amazd\Integration\Controller\Index;
 
 class Index extends \Magento\Framework\App\Action\Action
 {
-  protected $_pageFactory;
+    /**
+     * @var rawResultFactory
+     */
+    protected $rawResultFactory;
 
-  public function __construct(
-    \Magento\Framework\App\Action\Context $context,
-    \Magento\Framework\View\Result\PageFactory $pageFactory
-  ) {
-    $this->_pageFactory = $pageFactory;
-    return parent::__construct($context);
-  }
+    /**
+     * Index constructor
+     *
+     * @param Context $context
+     * @param RawFactory $rawResultFactory
+     */
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        \Magento\Framework\Controller\Result\RawFactory $rawResultFactory
+    ) {
+        $this->rawResultFactory = $rawResultFactory;
+        return parent::__construct($context);
+    }
 
-  public function execute()
-  {
-    echo "Amazd Integration is active";
-    exit;
-  }
+    /**
+     * Index execute
+     */
+    public function execute()
+    {
+        $page = $this->rawResultFactory->create();
+        $page->setHeader('Content-Type', 'text/xml');
+        $page->setContents('<body>Amazd Integration is active</body>');
+        return $page;
+    }
 }

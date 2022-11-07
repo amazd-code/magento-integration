@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+<!-- /**
+ * Amazd Integration
+ * 
+ * @copyright  Copyright (c) Amazd (https://www.amazd.co/)
+ * @license    https://github.com/amazd-code/magento-integration/blob/master/LICENSE.md
+ */ -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Amazd_Integration" setup_version="1.0.0">
     </module>
