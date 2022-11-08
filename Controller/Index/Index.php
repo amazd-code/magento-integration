@@ -38,7 +38,7 @@ class Index extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         $page = $this->rawResultFactory->create();
-        $page->setHeader('Content-Type', 'text/xml');
+        $page->setHeader('Content-Type', 'text/html');
         $page->setContents('<body>Amazd Integration is active</body>');
         return $page;
     }

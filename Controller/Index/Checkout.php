@@ -74,24 +74,15 @@ class Checkout extends \Magento\Framework\App\Action\Action
     {
         $resultRedirect = $this->resultRedirectFactory->create();
         $quoteMaskId = $this->getRequest()->getParam('token');
-        $result = null;
 
         try {
-            $result = $this->_mergeQuote($quoteMaskId);
+            $this->_mergeQuote($quoteMaskId);
         } catch (LocalizedException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+            error_log($e->getMessage());
+            $this->_logError('Something went wrong opening your wishbag');
         }
 
-        if ($result && $result->success) {
-            return $resultRedirect->setPath('checkout/cart');
-        } elseif ($result && $result->error) {
-            $page = $this->rawResultFactory->create();
-            $page->setHeader('Content-Type', 'text/xml');
-            $page->setContents('<body>' . $result->error . '</body>');
-            return $page;
-        } else {
-            return $resultRedirect->setPath('/');
-        }
+        return $resultRedirect->setPath('checkout/cart');
     }
 
     /**
@@ -101,53 +92,48 @@ class Checkout extends \Magento\Framework\App\Action\Action
      */
     private function _mergeQuote($quoteMaskId)
     {
-        $result = new CheckoutResult();
-
         if (!$quoteMaskId) {
-            $result->error = 'Invalid token';
-            return $result;
+            $this->$this->_logError('Invalid token');
+            return;
         }
 
         $quoteId = null;
 
         try {
             $quoteId = $this->maskedQuoteIdToQuoteId->execute($quoteMaskId);
-            if (!$quoteId) {
-                $result->error = 'Cart id not found or this link is already used';
-            }
         } catch (LocalizedException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-            $result->error = 'Cart id not found or this link is already used';
+            error_log($e->getMessage());
         }
 
         if (!$quoteId) {
-            return $result;
+            $this->_logError('Cart is not found or this link is already used');
+            return;
         }
 
         $quote = $this->quoteRepository->get($quoteId);
         if (!$quote) {
-            $result->error = 'Cart not found';
-            return $result;
+            $this->_logError('Cart is not found');
+            return;
         }
 
         if (!$quote->getId()) {
-            $result->error = 'Cart is not available';
-            return $result;
+            $this->_logError('Cart is not available');
+            return;
         }
 
         $items = $quote->getItemsCollection();
 
         foreach ($items as $item) {
-            if ($item->getParentItemId()) {
-                continue;
-            }
-
-            $productId = $item->getProductId();
-            if ($this->cart->getQuote()->hasProductId($productId)) {
-                continue;
-            }
-
             try {
+                if ($item->getParentItemId()) {
+                    continue;
+                }
+
+                $productId = $item->getProductId();
+                if ($this->cart->getQuote()->hasProductId($productId)) {
+                    continue;
+                }
+
                 $product = $this->productRepository->getById($productId, false, $quote->getStoreId(), true);
                 $info = $item->getProduct()->getTypeInstance(true)
                     ->getOrderOptions($item->getProduct())['info_buyRequest'];
@@ -160,17 +146,24 @@ class Checkout extends \Magento\Framework\App\Action\Action
                     $this->cart->addProduct($item->getProduct(), $info);
                 }
             } catch (NoSuchEntityException $e) {
-                $this->messageManager->addErrorMessage($e->getMessage());
-                $result->error = 'Can not add product to cart';
-                return $result;
+                error_log($e->getMessage());
+                $this->_logError('Cannot add product ' . $productId . ' to your cart');
             }
         }
+
         $this->cart->save();
 
         // This is temporary guest cart created by Amazd backend. Remove after merged with current cart.
         $quote->delete();
+    }
 
-        $result->success = true;
-        return $result;
+    /**
+     * Logs Amazd wishbag related error
+     *
+     * @param string $message
+     */
+    private function _logError($message)
+    {
+        $this->messageManager->addErrorMessage('Could not open your Amazd wishbag: ' . $message);
     }
 }
