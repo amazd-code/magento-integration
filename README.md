@@ -5,7 +5,6 @@
 ```sh
 composer require amazd/integration
 php bin/magento setup:upgrade
-php bin/magento setup:static-content:deploy
 ```
 
 - Install from Github:
@@ -16,7 +15,6 @@ cd {magento_root}
 php bin/magento module:enable Amazd_Integration
 php bin/magento setup:upgrade
 php bin/magento setup:di:compile
-php bin/magento setup:static-content:deploy
 ```
 
 ## Development
