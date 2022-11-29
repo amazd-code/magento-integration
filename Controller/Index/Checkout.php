@@ -151,6 +151,17 @@ class Checkout extends \Magento\Framework\App\Action\Action
             }
         }
 
+        try {
+            $couponCode = $quote->getCouponCode();
+
+            if ($couponCode) {
+                $this->cart->getQuote()->setCouponCode($couponCode)->collectTotals()->save();
+            }
+        } catch (LocalizedException $e) {
+            error_log($e->getMessage());
+            $this->_showError('Could not apply coupon');
+        }
+
         $this->cart->save();
 
         // This is temporary guest cart created by Amazd backend. Remove after merged with current cart.
@@ -164,6 +175,6 @@ class Checkout extends \Magento\Framework\App\Action\Action
      */
     private function _showError($message)
     {
-        $this->messageManager->addErrorMessage('Could not open your Amazd wishbag: ' . $message);
+        $this->messageManager->addErrorMessage("There's problem opening your Amazd wishbag: " . $message);
     }
 }
